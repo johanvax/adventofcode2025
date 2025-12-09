@@ -4,6 +4,7 @@ import math
 class UnionFind:
     def __init__(self, size):
         self.parent = list(range(size))
+        self.num_components = size
     
     def find(self, i):
         if self.parent[i] != i:
@@ -13,8 +14,10 @@ class UnionFind:
     def union(self, i, j):
         root_i = self.find(i)
         root_j = self.find(j)
+        
         if root_i != root_j:
             self.parent[root_i] = root_j
+            self.num_components -= 1
             return True
         return False
 
@@ -52,6 +55,28 @@ def part_1(boxes):
             
     print(result)
 
+def part_2(boxes):
+    all_edges = []
+    n = len(boxes)
+    
+    for i in range(n):
+        for j in range(i + 1, n):
+            dist = math.dist(boxes[i], boxes[j])
+            all_edges.append((dist, i, j))
+
+    all_edges.sort(key=lambda x: x[0])
+
+    uf = UnionFind(n)
+    
+    for _, u, v in all_edges:
+        did_merge = uf.union(u, v)
+        
+        if did_merge and uf.num_components == 1:
+            x1 = boxes[u][0]
+            x2 = boxes[v][0]
+            print(x1 * x2)
+            return
+
 if __name__ == "__main__":
     input_file = sys.argv[1]
         
@@ -59,3 +84,4 @@ if __name__ == "__main__":
         boxes = [[int(n) for n in line.split(",")] for line in f.read().splitlines() if line.strip()]
 
     part_1(boxes)
+    part_2(boxes)
